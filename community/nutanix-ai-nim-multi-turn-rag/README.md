@@ -338,20 +338,20 @@ Walkthrough steps from https://github.com/NVIDIA/GenerativeAIExamples/blob/main/
 Navigate to URL exposed behind http://10.28.174.181:32703/converse
 
 1. On the Converse tab, enter "How many cores does the Grace superchip contain?" in the chat box and click Submit.
-  ![alt text](converse-1.png)
+  ![alt text](images/converse-1.png)
 
 2. Extract the data.zip, select all the PDFs and Click Upload on `Knowledge Base` tab. There are approximately 660 relatively small PDFs prefixed and may take upwards of 1 hour in lab to upload and embed into vector databases.
-  ![alt text](files-uploaded.png)
+  ![alt text](images/files-uploaded.png)
   
 3. Return to Converse tab and select [X] Use knowledge base and Reenter the question: "How many cores does the Grace superchip contain?"
-  ![alt text](kb-rag-response.png)
+  ![alt text](images/kb-rag-response.png)
 
 Navigate to NAI endpoint exposed behind https://nim.nai-nim-rag.odin.cloudnative.nvdlab.net/
 
 1. View Dashboard for Usage details
-  ![alt text](nai-dashboard.png)
+  ![alt text](images/nai-dashboard.png)
 1. View Endpoint for Usage Details
-  ![alt text](endpoint-view.png)
+  ![alt text](images/images/endpoint-view.png)
 
 ### ISSUES
 
