@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.query.name }}
+  labels:
+    app.kubernetes.io/name: chain-server
+spec:
+  replicas: {{ .Values.query.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: chain-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: chain-server
+    spec:
+      {{- if .Values.imagePullSecret.name }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecret.name }}
+      {{- end }}
+      containers:
+      - name: chain-server
+        imagePullPolicy: Always
+        image:  {{ .Values.query.image }}
+        command:
+        - uvicorn
+        - RAG.src.chain_server.server:app
+        - --port
+        - {{ .Values.query.service.targetPort | quote }}
+        - --host
+        - "0.0.0.0"
+        env:
+          - name: APP_VECTORSTORE_URL
+            value: {{ .Values.query.env.APP_VECTORSTORE_URL | quote }}
+          - name: APP_VECTORSTORE_NAME
+            value: {{ .Values.query.env.APP_VECTORSTORE_NAME | quote }}
+          - name: POSTGRES_PASSWORD
+            value: {{ .Values.query.env.POSTGRES_PASSWORD | quote }}
+          - name: POSTGRES_USER
+            value: {{ .Values.query.env.POSTGRES_USER | quote }}
+          - name: POSTGRES_DB
+            value: {{ .Values.query.env.POSTGRES_DB | quote }}
+          - name: COLLECTION_NAME
+            value: {{ .Values.query.env.COLLECTION_NAME | quote }}
+          - name: APP_LLM_MODELNAME
+            value: {{ .Values.query.env.APP_LLM_MODELNAME | quote }}
+          - name: APP_LLM_SERVERURL
+            value: {{ .Values.query.env.APP_LLM_SERVERURL | quote }}
+          - name: APP_LLM_MODELENGINE
+            value: {{ .Values.query.env.APP_LLM_MODELENGINE | quote }}
+          - name: NVIDIA_API_KEY
+            value: {{ .Values.query.env.NVIDIA_API_KEY | quote }}
+          - name: APP_EMBEDDINGS_SERVERURL
+            value: {{ .Values.query.env.APP_EMBEDDINGS_SERVERURL | quote }}
+          - name: APP_EMBEDDINGS_MODELNAME
+            value: {{ .Values.query.env.APP_EMBEDDINGS_MODELNAME | quote }}
+          - name: APP_EMBEDDINGS_MODELENGINE
+            value: {{ .Values.query.env.APP_EMBEDDINGS_MODELENGINE | quote }}
+          - name: APP_RANKING_SERVERURL
+            value: {{ .Values.query.env.APP_RANKING_SERVERURL | quote }}
+          - name: APP_RANKING_MODELNAME
+            value: {{ .Values.query.env.APP_RANKING_MODELNAME | quote }}
+          - name: APP_RANKING_MODELENGINE
+            value: {{ .Values.query.env.APP_RANKING_MODELENGINE | quote }}        
+          - name: APP_RETRIEVER_TOPK
+            value: {{ .Values.query.env.APP_RETRIEVER_TOPK | quote }}
+          - name: APP_RETRIEVER_SCORETHRESHOLD
+            value: {{ .Values.query.env.APP_RETRIEVER_SCORETHRESHOLD | quote }}
+          - name: APP_TEXTSPLITTER_CHUNKSIZE
+            value: {{ .Values.query.env.APP_TEXTSPLITTER_CHUNKSIZE | quote }}
+          - name: APP_TEXTSPLITTER_CHUNKOVERLAP
+            value: {{ .Values.query.env.APP_TEXTSPLITTER_CHUNKOVERLAP | quote }}
+          - name: APP_PROMPTS_CHATTEMPLATE
+            value: {{ .Values.query.env.APP_PROMPTS_CHATTEMPLATE | quote }}
+          - name: APP_PROMPTS_MULTITURNRAGTEMPLATE
+            value: {{ .Values.query.env.APP_PROMPTS_MULTITURNRAGTEMPLATE | quote }}
+          - name: EXAMPLE_PATH
+            value: {{ .Values.query.env.EXAMPLE_PATH | quote }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.query.service.targetPort }}
+          protocol: TCP
+        volumeMounts:
+          - mountPath: /dev/shm
+            name: dshm
+          - name: prompt-volume
+            mountPath: /prompt.yaml
+            subPath: prompt.yaml
+        resources:
+          {{- toYaml .Values.query.resources | nindent 10 }}
+      {{- with .Values.query.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.query.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.query.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: dshm
+        emptyDir:
+          medium: Memory
+      - name: prompt-volume
+        configMap:
+          name: prompt-config
+          defaultMode: 0555
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  {{ .Values.query.name }}
+spec:
+  type: {{ .Values.query.service.type }}
+  selector:
+    app.kubernetes.io/name: chain-server
+{{- with .Values.query.service.ports }}
+  ports:
+  {{- toYaml . | nindent 4 }}
+{{- end }}

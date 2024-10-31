@@ -1,0 +1,78 @@
+# Default values for rag-llm-pipeline
+
+imagePullSecret:
+  # Leave blank, if no imagePullSecret is needed.
+  registry: "nvcr.io"
+  name: "ngc-secret-multi-turn"
+  # If set to false, the chart expects either a imagePullSecret
+  # with the name configured above to be present on the cluster or that no
+  # credentials are needed.
+  create: true
+  username: '$oauthtoken'
+  password: ""
+
+query:
+  image: nvcr.io/nvidia/aiworkflows/rag-application-multiturn-chatbot:24.08
+  name: chain-server-multi-turn
+  replicas: 1
+  nodeSelector: {}
+  tolerations: {}
+  affinity: {}
+  env:
+      APP_VECTORSTORE_URL: "http://milvus.vectorstore:19530"
+      APP_VECTORSTORE_NAME: "milvus"
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: api
+      APP_LLM_SERVERURL: "my-nim-nim-llm.nim:8000"
+      APP_LLM_MODELNAME: meta/llama3-8b-instruct
+      APP_LLM_MODELENGINE: nvidia-ai-endpoints
+      APP_EMBEDDINGS_SERVERURL: "nemo-embedding-ms.nrem:8080"
+      APP_EMBEDDINGS_MODELENGINE: nvidia-ai-endpoints
+      APP_RANKING_MODELENGINE: nvidia-ai-endpoints
+      APP_RANKING_SERVERURL: "nemo-ranking-ms.nrem:8080"
+      NVIDIA_API_KEY: openai-api-key
+      COLLECTION_NAME: multi_turn_rag
+      APP_RETRIEVER_TOPK: 2
+      APP_RETRIEVER_SCORETHRESHOLD: 0.25
+      APP_TEXTSPLITTER_CHUNKSIZE: 506
+      APP_TEXTSPLITTER_CHUNKOVERLAP: 200
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector-collector.opentelemetry.svc.cluster.local:4317
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      ENABLE_TRACING: false
+      EXAMPLE_PATH: advanced_rag/multi_turn_rag
+  service:
+      type: ClusterIP
+      targetPort: 8083
+      ports:
+        - port: 8083
+          targetPort: http
+          protocol: TCP
+          name: http
+
+frontend:
+  image: nvcr.io/nvidia/aiworkflows/rag-playground:24.08
+  name: rag-playground-multiturn-rag
+  replicas: 1
+  nodeSelector: {}
+  tolerations: {}
+  affinity: {}
+  env:
+    - name: CHAIN_SERVER_PORT
+      value: "8083"
+    - name: CHAIN_SERVER
+      value: http://chain-server-multi-turn
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: http://otel-collector-collector.opentelemetry.svc.cluster.local:4317
+    - name: OTEL_EXPORTER_OTLP_PROTOCOL
+      value: grpc
+    - name: ENABLE_TRACING
+      value: "false"
+  service:
+      type: NodePort
+      targetPort: 3001
+      ports:
+        - port: 3001
+          targetPort: http
+          protocol: TCP
+          name: http

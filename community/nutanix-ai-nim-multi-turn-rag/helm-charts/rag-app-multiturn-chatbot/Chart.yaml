@@ -1,0 +1,6 @@
+apiVersion: v2
+appVersion: v24.08
+description: A Helm chart for sample RAG application
+name: rag-app-multiturn-chatbot
+type: application
+version: "24.08"
