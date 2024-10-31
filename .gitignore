@@ -32,3 +32,6 @@ RAG/notebooks/langchain/data/save_embedding
 
 # IntelliJ's project specific settings file
 .idea
+
+# Mac OS
+.DS_Store

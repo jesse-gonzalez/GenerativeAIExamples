@@ -47,6 +47,7 @@ services:
     expose:
     - "8081"
     shm_size: 5gb
+    platform: linux/amd64
     depends_on:
       nemollm-embedding:
         condition: service_healthy
@@ -74,6 +75,7 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       OTEL_EXPORTER_OTLP_PROTOCOL: grpc
       ENABLE_TRACING: false
+    platform: linux/amd64
     ports:
     - "8090:8090"
     expose:

@@ -379,7 +379,8 @@ def get_llm(**kwargs) -> LLM | SimpleChatModel:
         if settings.llm.server_url:
             logger.info(f"Using llm model {settings.llm.model_name} hosted at {settings.llm.server_url}")
             return ChatNVIDIA(
-                base_url=f"http://{settings.llm.server_url}/v1",
+                base_url=f"https://{settings.llm.server_url}/v1", ## set http to https
+                model=settings.llm.model_name, ## setting this param avoids issues with v1/models endpoint being called on NAI
                 temperature=kwargs.get('temperature', None),
                 top_p=kwargs.get('top_p', None),
                 max_tokens=kwargs.get('max_tokens', None),

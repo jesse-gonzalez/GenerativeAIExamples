@@ -34,6 +34,19 @@ _LOCAL_CSS = """
     overflow-y: scroll !important;
     max-height: 400px;
 }
+
+#header-container img {
+    height: 40px;
+    width: auto;
+    vertical-align: middle;
+    margin-right: 20px;
+}
+
+#header-container h1 {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+}
 """
 
 
@@ -44,7 +57,7 @@ def build_page(client: chat_client.ChatClient) -> gr.Blocks:
     with gr.Blocks(title=TITLE, theme=kui_theme, css=kui_styles + _LOCAL_CSS) as page:
 
         # create the page header
-        gr.Markdown(f"# {TITLE}")
+        gr.Markdown('<div id="header-container"><img src="/_next/static/nutanix.svg" alt="Nutanix Logo" /> ' + TITLE + '</div>')
 
         # chat logs
         with gr.Row(equal_height=True):
