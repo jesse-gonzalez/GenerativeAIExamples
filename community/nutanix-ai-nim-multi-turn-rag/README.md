@@ -351,7 +351,7 @@ Navigate to NAI endpoint exposed behind https://nim.nai-nim-rag.odin.cloudnative
 1. View Dashboard for Usage details
   ![alt text](images/nai-dashboard.png)
 1. View Endpoint for Usage Details
-  ![alt text](images/images/endpoint-view.png)
+  ![alt text](images/endpoint-view.png)
 
 ### ISSUES
 
